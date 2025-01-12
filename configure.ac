@@ -1,5 +1,5 @@
-AC_PREREQ([2.69])
-AC_INIT([likewise-open], [1.3.0])
+AC_PREREQ([2.71])
+AC_INIT([likewise-open],[1.3.0])
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AM_SILENT_RULES([yes])
@@ -8,7 +8,7 @@ AM_PROG_AR
 LT_INIT
 AC_PROG_CC
 AC_PROG_CXX(g++)
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PREFIX_DEFAULT(/usr)
 
 AC_CONFIG_HEADERS([include/config.h])
@@ -28,7 +28,7 @@ case "${host_os}:${host_cpu}" in
         PLATFORM_LIB_PREFIX=lib
         ;;
     *)
-        AC_ERROR("Unsupported operating system - ${host_os}:${host_cpu}")
+        AC_MSG_ERROR("Unsupported operating system - ${host_os}:${host_cpu}")
         ;;
 esac
 
@@ -56,7 +56,9 @@ AC_SUBST(CFLAGS_ORIGINAL)
 AC_SUBST(CFLAGS_COMPAT)
 AC_SUBST(CFLAGS_DESIRED)
 
-AC_HEADER_STDC
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS(pthread.h errno.h sys/types.h sys/stat.h stdio.h string.h strings.h)
 AC_CHECK_HEADERS(unistd.h time.h inttypes.h sys/socket.h netdb.h syslog.h)
 AC_CHECK_HEADERS(stdlib.h locale.h stddef.h stdarg.h assert.h signal.h)
@@ -73,8 +75,7 @@ AC_CHECK_FUNCS(strerror)
 #--------------------------------------------------------------------
 
 AC_ARG_ENABLE([debug],
-    [AC_HELP_STRING([--enable-debug],
-                    [enable debugging (default: disabled)])],
+    [AS_HELP_STRING([--enable-debug],[enable debugging (default: disabled)])],
     [
         if test x"$enableval" = x"yes"
         then
@@ -87,8 +88,7 @@ AC_ARG_ENABLE([debug],
 # openssl component
 
 AC_ARG_WITH([ssl],
-    [AC_HELP_STRING([--with-ssl=<dir>],
-                    [use SSL binaries rooted at prefix <dir>])],
+    [AS_HELP_STRING([--with-ssl=<dir>],[use SSL binaries rooted at prefix <dir>])],
     [
         OPENSSL_BASE_PATH="$withval"
     ],
@@ -97,8 +97,7 @@ AC_ARG_WITH([ssl],
     ])
 
 AC_ARG_WITH([ssl-includes],
-    [AC_HELP_STRING([--with-ssl-includes=<dir>],
-                    [use SSL headers located in prefix <dir>])],
+    [AS_HELP_STRING([--with-ssl-includes=<dir>],[use SSL headers located in prefix <dir>])],
     [
         OPENSSL_INCLUDES="-DOPENSSL_NO_KRB5 -I$withval"
     ],
@@ -107,8 +106,7 @@ AC_ARG_WITH([ssl-includes],
     ])
 
 AC_ARG_WITH([ssl-libs],
-    [AC_HELP_STRING([--with-ssl-libs=<dir>],
-                    [use SSL libraries located in prefix <dir>])],
+    [AS_HELP_STRING([--with-ssl-libs=<dir>],[use SSL libraries located in prefix <dir>])],
     [
         OPENSSL_LDFLAGS="-L$withval"
     ],
@@ -129,8 +127,7 @@ CPPFLAGS="$saved_CPPFLAGS"
 # zlib component
 
 AC_ARG_WITH([zlib],
-    [AC_HELP_STRING([--with-zlib=<dir>],
-                    [use zlib binaries rooted at prefix <dir>])],
+    [AS_HELP_STRING([--with-zlib=<dir>],[use zlib binaries rooted at prefix <dir>])],
     [
         ZLIB_BASE_PATH="$withval"
     ],
@@ -149,8 +146,7 @@ AC_SUBST(ZLIB_LDFLAGS)
 # bzip component
 
 AC_ARG_WITH([bzip],
-    [AC_HELP_STRING([--with-bzip=<dir>],
-                    [use BZIP binaries rooted at prefix <dir>])],
+    [AS_HELP_STRING([--with-bzip=<dir>],[use BZIP binaries rooted at prefix <dir>])],
     [
         BZIP_BASE_PATH="$withval"
     ],
