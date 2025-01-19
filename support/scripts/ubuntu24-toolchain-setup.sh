@@ -21,4 +21,5 @@ sudo apt install -y \
         sed \
         libsqlite3-dev \
         tar \
-	uuid-dev
+	uuid-dev \
+	libedit-dev
