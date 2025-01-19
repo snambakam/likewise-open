@@ -6,9 +6,10 @@ libregclient_la_SOURCES = \
     regntclient.c
 
 libregclient_la_CPPFLAGS = \
-    $(AM_CPPFLAGS)         \
-    @LWBASE_INCLUDES@    \
-    @LWMSG_INCLUDES@
+    $(AM_CPPFLAGS) \
+    -I$(top_srcdir)/lwreg/include \
+    -I$(top_srcdir)/lwmsg/include \
+    -I$(top_srcdir)/lwbase/include
 
 libregclient_la_LIBADD = \
-	@top_builddir@/common/libregcommon.la
+	@top_builddir@/lwreg/common/libregcommon.la

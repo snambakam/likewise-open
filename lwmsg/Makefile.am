@@ -6,7 +6,12 @@ AUTOMAKE_OPTIONS = subdir-objects
 # General configuration
 
 AM_CFLAGS = @LWMSG_CFLAGS@
-AM_CPPFLAGS = @LWMSG_CPPFLAGS@ -I$(top_srcdir)/include -I$(top_builddir)/include
+AM_CPPFLAGS = \
+	@LWMSG_CPPFLAGS@ \
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/lwmsg/include \
+	-I$(top_srcdir)/lwbase/include \
+	-I$(top_builddir)/include
 MKDIR_P = @MKDIR_P@
 
 lib_LTLIBRARIES =
@@ -94,7 +99,7 @@ src_liblwmsg_nothr_la_SOURCES = \
 	src/archive-format.c
 
 src_liblwmsg_nothr_la_LIBADD = @LIB_XNET@ @LIB_DL@ @LIB_ICONV@ @LIB_RT@
-src_liblwmsg_nothr_la_LDFLAGS = $(AM_LDFLAGS) -export-symbols $(top_srcdir)/src/liblwmsg_nothr.sym
+src_liblwmsg_nothr_la_LDFLAGS = $(AM_LDFLAGS) -export-symbols $(top_srcdir)/lwmsg/src/liblwmsg_nothr.sym
 
 src_liblwmsg_la_SOURCES = \
 	src/peer.c \
@@ -102,8 +107,8 @@ src_liblwmsg_la_SOURCES = \
 	src/peer-call.c \
 	src/session-shared.c
 
-src_liblwmsg_la_LIBADD = src/liblwmsg_nothr.la @LIB_PTHREAD@ -llwbase
-src_liblwmsg_la_LDFLAGS = $(AM_LDFLAGS) -export-symbols $(top_srcdir)/src/liblwmsg.sym
+src_liblwmsg_la_LIBADD = src/liblwmsg_nothr.la @LIB_PTHREAD@ $(top_builddir)/lwbase/src/liblwbase.la
+src_liblwmsg_la_LDFLAGS = $(AM_LDFLAGS) -export-symbols $(top_srcdir)/lwmsg/src/liblwmsg.sym
 
 bin_PROGRAMS += lwma
 

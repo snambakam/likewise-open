@@ -7,7 +7,7 @@ libregserver_provider_file_la_SOURCES = \
 libregserver_provider_file_la_CPPFLAGS =        \
     -DLW_ENABLE_THREADS=1         \
     $(AM_CFLAGS)                  \
-    -I@top_srcdir@/server/include 
+    -I@top_srcdir@/lwreg/server/include 
 
 libregserver_provider_file_la_LIBADD = \
     @PTHREAD_LIBS@    

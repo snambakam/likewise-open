@@ -1,5 +1,8 @@
-AM_CFLAGS = $(LWBASE_CFLAGS) -Wno-deprecated-declarations
-AM_CPPFLAGS = $(LWBASE_CPPFLAGS) -I$(top_srcdir)/include
+AM_CFLAGS = $(LWBASE_CFLAGS) $(CFLAGS_COMPAT) -Wno-deprecated-declarations
+AM_CPPFLAGS = \
+	$(LWBASE_CPPFLAGS) \
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/lwbase/include
 AM_LDFLAGS = $(LWBASE_LDFLAGS)
 
 lib_LTLIBRARIES = liblwbase_nothr.la liblwbase.la

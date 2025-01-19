@@ -8,10 +8,11 @@ libregparse_la_SOURCES = \
 
 libregparse_la_CPPFLAGS = \
     $(AM_CPPFLAGS)        \
-    @LWBASE_INCLUDES@   \
-    @LWMSG_INCLUDES@
+    -I$(top_srcdir)/lwreg/include \
+    -I$(top_srcdir)/lwmsg/include \
+    -I$(top_srcdir)/lwbase/include
 
 libregparse_la_LIBADD = \
-    @top_builddir@/common/libregcommon.la
+    @top_builddir@/lwreg/common/libregcommon.la
 
 libregparse_la_LDFLAGS = @LWBASE_LDFLAGS@

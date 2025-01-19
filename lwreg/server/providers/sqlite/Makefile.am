@@ -19,7 +19,10 @@ libregserver_provider_sqlite_la_SOURCES = \
 libregserver_provider_sqlite_la_CPPFLAGS = \
     -DLW_ENABLE_THREADS=1         \
     $(AM_CPPFLAGS)                \
-    -I@top_srcdir@/server/include \
+    -I@top_srcdir@/lwreg/server/include \
+    -I@top_srcdir@/lwreg/include \
+    -I@top_srcdir@/lwmsg/include \
+    -I@top_srcdir@/lwbase/include \
     @LWBASE_INCLUDES@ \
     $(PROVIDER_CPPFLAGS)          
 

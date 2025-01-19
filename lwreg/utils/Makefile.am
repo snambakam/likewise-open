@@ -1,5 +1,15 @@
 noinst_LTLIBRARIES = libregutils.la
 
+# General configuration
+
+AM_CFLAGS = @LWMSG_CFLAGS@
+AM_CPPFLAGS = \
+	@LWMSG_CPPFLAGS@ \
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/lwreg/include \
+    -I$(top_srcdir)/lwbase/include \
+	-I$(top_builddir)/include
+
 libregutils_la_SOURCES = \
     consolelog.c         \
     filelog.c            \

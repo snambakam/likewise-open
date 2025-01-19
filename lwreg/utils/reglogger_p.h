@@ -54,6 +54,11 @@ RegSetupLogging(
 	PFN_REG_LOG_MESSAGE pfnLogger
 	);
 
+DWORD
+RegValidateLogLevel(
+    DWORD dwLogLevel
+    );
+
 VOID
 RegResetLogging(
     VOID

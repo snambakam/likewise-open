@@ -13,6 +13,7 @@ compile
 config.log
 config.status
 config.cache
+depcomp
 staging
 config.guess
 config.sub
@@ -22,3 +23,6 @@ ltmain.sh
 missing
 Makefile.in
 **/*/Makefile.in
+build/lwbase
+build/lwreg
+build/lwmsg

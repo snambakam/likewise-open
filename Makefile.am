@@ -5,11 +5,11 @@
 SRCROOT = @top_srcdir@
 BUILDROOT = @abs_top_builddir@
 STAGEDIR = $(BUILDROOT)/stage
-MAKEROOT=$(SRCROOT)/support/make
-include $(MAKEROOT)/makedefs.mk
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS =
+SUBDIRS = \
+	lwbase \
+	lwmsg \
+	lwreg
 
-.PHONY: package stage

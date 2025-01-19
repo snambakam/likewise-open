@@ -866,7 +866,7 @@ RegShellProcessCmd(
     DWORD dwOpenRootKeyError = 0;
     DWORD dwValuesListed = 0;
     PREGSHELL_CMD_ITEM rsItem = NULL;
-    PCSTR pszErrorPrefix = NULL;
+    // PCSTR pszErrorPrefix = NULL;
     PSTR pszPwd = NULL;
     PSTR pszToken = NULL;
     PSTR pszKeyName = NULL;
@@ -888,14 +888,14 @@ RegShellProcessCmd(
         switch (rsItem->command)
         {
             case REGSHELL_CMD_LIST_KEYS:
-                pszErrorPrefix = "list_keys: failed ";
+                // pszErrorPrefix = "list_keys: failed ";
                 dwError = RegShellListKeys(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_LIST:
             case REGSHELL_CMD_DIRECTORY:
-                pszErrorPrefix = "list: failed ";
+                // pszErrorPrefix = "list: failed ";
                 pszRootKeyName = RegShellGetRootKey(pParseState);
                 pszFullKeyName = RegShellGetDefaultKey(pParseState);
                 if (pszRootKeyName)
@@ -925,49 +925,49 @@ RegShellProcessCmd(
                 break;
 
             case REGSHELL_CMD_ADD_KEY:
-                pszErrorPrefix = "add_key: failed";
+                // pszErrorPrefix = "add_key: failed";
                 dwError = RegShellAddKey(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_DELETE_KEY:
-                pszErrorPrefix = "delete_key: failed ";
+                // pszErrorPrefix = "delete_key: failed ";
                 dwError = RegShellDeleteKey(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_DELETE_VALUE:
-                pszErrorPrefix = "delete_value: failed ";
+                // pszErrorPrefix = "delete_value: failed ";
                 dwError = RegShellDeleteValue(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_DELETE_TREE:
-                pszErrorPrefix = "delete_tree: failed ";
+                // pszErrorPrefix = "delete_tree: failed ";
                 dwError = RegShellDeleteTree(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_SET_VALUE:
-                pszErrorPrefix = "set_value: failed ";
+                // pszErrorPrefix = "set_value: failed ";
                 dwError = RegShellSetValue(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_ADD_VALUE:
-                pszErrorPrefix = "add_value: failed ";
+                // pszErrorPrefix = "add_value: failed ";
                 dwError = RegShellSetValue(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_SET_SECURITY:
-                pszErrorPrefix = "set_security: failed ";
+                // pszErrorPrefix = "set_security: failed ";
                 dwError = RegShellSetSecurity(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
 
             case REGSHELL_CMD_GET_SECURITY:
-                pszErrorPrefix = "get_security: failed ";
+                // pszErrorPrefix = "get_security: failed ";
                 dwError = RegShellGetSecurity(pParseState, rsItem);
                 BAIL_ON_REG_ERROR(dwError);
                 break;
@@ -1160,7 +1160,7 @@ RegShellProcessCmd(
                 break;
 
             case REGSHELL_CMD_LIST_VALUES:
-                pszErrorPrefix = "list_values: failed ";
+                // pszErrorPrefix = "list_values: failed ";
                 dwError = RegShellListValues(pParseState, rsItem, NULL);
                 BAIL_ON_REG_ERROR(dwError);
                 break;

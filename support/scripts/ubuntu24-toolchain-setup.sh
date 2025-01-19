@@ -20,4 +20,5 @@ sudo apt install -y \
         procps \
         sed \
         libsqlite3-dev \
-        tar
+        tar \
+	uuid-dev

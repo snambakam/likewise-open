@@ -33,40 +33,24 @@
  *
  * Module Name:
  *
- *        includes.h
+ *        hashtable_p.h
  *
  * Abstract:
  *
  *        Registry
  *
- *        Private Includes (Utils)
+ *        Hashtable Private API
  *
- * Authors: Sriram Nambakam (snambakam@likewisesoftware.com)
- *          Marc Guy (mguy@likewisesoftware.com)
+ * Authors: Sriram Nambakam (snambakam@gmail.com)
  *
  */
 
-#include <config.h>
+#ifndef __HASHTABLE_P_H__
+#define __HASHTABLE_P_H__
 
-#include <regsystem.h>
+void
+RegHashFree(
+    REG_HASH_TABLE* pResult
+    );
 
-#include <reg/lwreg.h>
-
-#include <lw/base.h>
-#include <lw/winerror.h>
-#include <lw/ntstatus.h>
-#include <lw/rtlstring.h>
-#include <lw/rtlmemory.h>
-
-#include <regdef.h>
-#include <regutils.h>
-
-#include "reglogger_p.h"
-#include "sysfuncs_p.h"
-#include "filelog_p.h"
-#include "consolelog_p.h"
-#include "syslog_p.h"
-#include "regerror_p.h"
-#include "hashtable_p.h"
-#include "externs.h"
-#include "regparse_r.h"
+#endif /* __HASHTABLE_P_H__ */

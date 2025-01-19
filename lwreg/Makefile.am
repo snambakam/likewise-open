@@ -9,7 +9,5 @@ SUBDIRS=\
     logging_r \
     parse     \
     server    \
-    libedit   \
     shellutil \
-    shell     \
-    test
+    shell
