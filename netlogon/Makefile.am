@@ -7,8 +7,6 @@ SUBDIRS=utils   \
         server  \
         etc     \
         include \
-        tests
-
-# TODO:
-#        tools
-#        service_locator
+        tests   \
+        tools   \
+        service_locator

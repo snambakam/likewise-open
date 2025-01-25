@@ -10,11 +10,12 @@ bin_PROGRAMS = lw-get-dc-name
 lw_get_dc_name_CPPFLAGS = $(AM_CPPFLAGS)
 
 lw_get_dc_name_LDADD = \
-	@top_builddir@/lwreg/client/libregclient.la \
 	@top_builddir@/lwbase/src/liblwbase_nothr.la \
 	@top_builddir@/lwadvapi/threaded/liblwadvapi_threaded.la \
 	@top_builddir@/lwadvapi/unthreaded/liblwadvapi_nothr.la \
 	@top_builddir@/netlogon/client/liblwnetclientapi.la \
 	@top_builddir@/netlogon/common/liblwnetcommon.la
+
+lw_get_dc_name_LDFLAGS =
 
 lw_get_dc_name_SOURCES = main.c

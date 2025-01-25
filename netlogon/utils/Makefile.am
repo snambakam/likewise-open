@@ -29,7 +29,9 @@ noinst_HEADERS = \
 	lwnet-dns_p.h
 
 liblwnetutils_la_LIBADD =  \
-	@LWREG_LIBS@   \
+	@top_builddir@/lwreg/shellutil/librsutils.la \
+	@top_builddir@/lwreg/client/libregclient.la \
+	@top_builddir@/lwreg/common/libregcommon.la \
 	@RESOLV_LIBS@  \
 	@RT_LIBS@      \
 	@PTHREAD_LIBS@
