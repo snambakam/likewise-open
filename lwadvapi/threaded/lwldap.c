@@ -1951,7 +1951,7 @@ LwLdapDirectoryExtendedDNSearch(
     ppInputControls[0] = pExtDNControl;
 
     dwError = LwLdapDirectorySearchEx(
-               hDirectory,
+               pDirectory,
                pszObjectDN,
                scope,
                pszQuery,

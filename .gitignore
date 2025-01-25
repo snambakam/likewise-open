@@ -23,6 +23,3 @@ ltmain.sh
 missing
 Makefile.in
 **/*/Makefile.in
-build/lwbase
-build/lwreg
-build/lwmsg

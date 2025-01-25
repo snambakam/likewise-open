@@ -11,5 +11,6 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
 	lwbase \
 	lwmsg \
-	lwreg
-
+	lwadvapi \
+	lwreg \
+	netlogon

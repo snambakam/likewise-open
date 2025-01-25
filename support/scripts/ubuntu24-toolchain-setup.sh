@@ -8,7 +8,7 @@ sudo apt install -y \
 	build-essential \
         gawk \
         gcc \
-        krb5-multidev \
+        libkrb5-dev \
         libtool \
         libxml2 \
         libxml2-dev \
@@ -17,6 +17,7 @@ sudo apt install -y \
         libldap-dev \
         libssl-dev \
         libpopt-dev \
+	libsasl2-dev \
         procps \
         sed \
         libsqlite3-dev \

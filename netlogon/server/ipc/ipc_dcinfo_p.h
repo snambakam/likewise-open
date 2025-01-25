@@ -63,7 +63,7 @@ LWNetSrvIpcGetLogInfo(
     void* data
     );
 
-DWORD
+LWMsgStatus
 LWNetSrvIpcGetDCName(
     LWMsgCall* pCall,
     const LWMsgParams* pRequest,

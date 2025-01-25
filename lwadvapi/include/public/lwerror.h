@@ -438,7 +438,7 @@
 #define LW_ERROR_KRB5_ASN1_BAD_FORMAT                      41709
 #define LW_ERROR_KRB5_ASN1_PARSE_ERROR                     41710
 #define LW_ERROR_KRB5_ASN1_BAD_GMTIME                      41711
-#define LW_ERROR_KRB5_ASN1_MISMATCH_INDEF                  41712
+#define LW_ERROR_KRB5_ASN1_INDEF                           41712
 #define LW_ERROR_KRB5_ASN1_MISSING_EOC                     41713
 
 /* From krb5/src/lib/krb5/error_tables/krb524_err.et */

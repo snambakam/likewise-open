@@ -3,3 +3,8 @@ config.status
 include
 libtool
 Makefile
+lwbase
+lwadvapi
+lwmsg
+lwreg
+netlogon

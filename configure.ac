@@ -474,7 +474,7 @@ AM_CONDITIONAL(USE_POLL, $USE_POLL)
 AM_CONDITIONAL(USE_EPOLL, $USE_EPOLL)
 AM_CONDITIONAL(USE_KQUEUE, $USE_KQUEUE)
 
-LWBASE_INCLUDES="-I$srcdir/lwbase/include"
+LWBASE_INCLUDES="-I$(top_srcdir)/lwbase/include"
 
 AC_SUBST(LWBASE_INCLUDES)
 
@@ -595,6 +595,142 @@ AC_CHECK_TYPES([wchar16_t], [], [], [AC_INCLUDES_DEFAULT
 
 #--------------------------------------------------------------------
 
+# compat
+
+ENABLE_COMPAT=false
+
+AC_ARG_ENABLE([compat],
+        [AC_HELP_STRING([--enable-compat], [enable compat-only build (default: disabled)])],
+        [
+                if test x"$enableval" = x"yes"
+                then
+                        ENABLE_COMPAT=true
+                else
+                        ENABLE_COMPAT=false
+                fi
+        ])
+
+AM_CONDITIONAL(ENABLE_COMPAT, [$ENABLE_COMPAT])
+
+#--------------------------------------------------------------------
+
+# netlogon
+
+AC_ARG_ENABLE([minimal], [AC_HELP_STRING([--enable-minimal], [build minimal netlogon])])
+AM_CONDITIONAL(ENABLE_MINIMAL, test x"$enable_minimal" = x"yes")
+if test x"$enable_minimal" = x"yes"
+then
+        AC_DEFINE([ENABLE_MINIMAL], [], [Define if should build minimal netlogon])
+fi
+
+AS_AC_EXPAND(netlogonconfdir, ["$sysconfdir"])
+AS_AC_EXPAND(netlogonregdir, ["$datadir/config"])
+
+AC_DEFINE_UNQUOTED([LWNET_CONFIG_DIR], ["$netlogonconfdir"], [Location of netlogon configuration files])
+
+if test x"$localstatedir" = x"/var"; then
+    netlogoncachedir="$localstatedir/lib/likewise"
+else
+    netlogoncachedir="$localstatedir"
+fi
+AC_DEFINE_UNQUOTED([LWNET_CACHE_DIR], ["$netlogoncachedir"], [Location of netlogon cache files])
+
+AC_CHECK_LIB([nsl], [gethostname], [NSL_LIBS="-lnsl"],,)
+AC_CHECK_LIB([resolv], [res_query], [RESOLV_LIBS="-lresolv"],,)
+AC_CHECK_LIB([resolv], [__res_query], [RESOLV_LIBS="-lresolv"],,)
+AC_CHECK_LIB([rt], [clock_settime], [RT_LIBS="-lrt"],,)
+AC_CHECK_LIB([socket], [bind], [SOCKET_LIBS="-lsocket"],,)
+
+AC_SUBST(NSL_LIBS)
+AC_SUBST(RESOLV_LIBS)
+AC_SUBST(RT_LIBS)
+AC_SUBST(SOCKET_LIBS)
+
+old_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS $RT_LIBS"
+AC_CHECK_FUNCS([clock_gettime clock_settime settimeofday gettimeofday timegm])
+LDFLAGS="$old_LDFLAGS"
+
+AC_CHECK_TYPES([socklen_t], [], [], [AC_INCLUDES_DEFAULT
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+
+saved_CFLAGS="$CFLAGS"
+CFLAGS="$CFLAGS -Wall -Werror"
+
+AC_MSG_CHECKING([if getsockname takes socklen_t*])
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/socket.h>
+],
+[
+int fd = -1;
+struct sockaddr addr;
+socklen_t addrlen;
+(void) getsockname(fd, &addr, &addrlen);
+], [
+AC_MSG_RESULT([yes])
+AC_DEFINE([GETSOCKNAME_TAKES_SOCKLEN_T], [], [Define if getsockname takes socklen_t as its third argument])],[
+AC_MSG_RESULT([no])
+])
+
+AC_MSG_CHECKING([if struct msghdr has msg_control])
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/socket.h>
+],
+[
+struct msghdr hdr;
+hdr.msg_control = 0;
+],
+[
+AC_MSG_RESULT([yes])
+AC_DEFINE([MSGHDR_HAS_MSG_CONTROL], [], [Define if struct msghdr has the msg_control field])
+],
+[
+AC_MSG_RESULT([no])
+])
+
+CFLAGS="$saved_CFLAGS"
+
+#--------------------------------------------------------------------
+
+AC_MSG_CHECKING([whether clock_settime crashes])
+old_LDFLAGS="$LDFLAGS"
+LDFLAGS="$LDFLAGS $RT_LIBS"
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <errno.h>]],
+[[struct timespec timevar;
+if (clock_gettime(CLOCK_REALTIME, &timevar) < 0)
+{
+        printf("clock_gettime failed with errno %d\n", errno);
+        return 1;
+}
+if (clock_settime(CLOCK_PROCESS_CPUTIME_ID, &timevar) < 0)
+{
+        printf("clock_settime failed with errno %d\n", errno);
+        return 0;
+}]])],
+        [AC_MSG_RESULT(no)],
+        [AC_MSG_RESULT([yes])
+        AC_DEFINE([CLOCK_SETTIME_CRASHES], [1], [If set, do not use clock_settime, because it crashes])])
+LDFLAGS="$old_LDFLAGS"
+
+#--------------------------------------------------------------------
+
+KRB5_LIBS="-lgssapi_krb5 -lkrb5 -lk5crypto"
+AC_SUBST(KRB5_LIBS)
+
+#--------------------------------------------------------------------
+
+OPENLDAP_LIBS="-lldap_r -llber"
+AC_SUBST(OPENLDAP_LIBS)
+
+#--------------------------------------------------------------------
+
 AC_CHECK_LIB([dl],
     [dlopen],
     [LIBDL="-ldl"])
@@ -682,6 +818,19 @@ AC_CONFIG_FILES([
 	lwbase/include/lw/Makefile
 	lwbase/moonunit/Makefile
 	lwbase/src/Makefile
+    lwadvapi/Makefile
+    lwadvapi/include/Makefile
+    lwadvapi/include/public/Makefile
+    lwadvapi/unthreaded/Makefile
+    lwadvapi/unthreaded/memory/Makefile
+    lwadvapi/unthreaded/file/Makefile
+    lwadvapi/unthreaded/dscache/Makefile
+    lwadvapi/unthreaded/time/Makefile
+    lwadvapi/unthreaded/lwunistr/Makefile
+    lwadvapi/unthreaded/error/Makefile
+    lwadvapi/threaded/Makefile
+    lwadvapi/tools/Makefile
+    lwadvapi/tools/lwkrb5str/Makefile
 	lwmsg/Makefile
     lwreg/Makefile
     lwreg/server/Makefile
@@ -701,6 +850,33 @@ AC_CONFIG_FILES([
     lwreg/shell/lw-edit-reg.sh
     lwreg/parse/Makefile
     lwreg/common/Makefile
+    netlogon/Makefile
+    netlogon/etc/Makefile
+    netlogon/etc/netlogond.reg
+    netlogon/etc/netlogond.reg.svcm
+    netlogon/include/Makefile
+    netlogon/common/Makefile
+    netlogon/ipc/Makefile
+    netlogon/server/Makefile
+    netlogon/server/ipc/Makefile
+    netlogon/server/api/Makefile
+    netlogon/server/netlogond/Makefile
+    netlogon/client/Makefile
+    netlogon/utils/Makefile
+    netlogon/service_locator/Makefile
+    netlogon/tools/get_log_info/Makefile
+    netlogon/tools/export_dc_cache/Makefile
+    netlogon/tools/Makefile
+    netlogon/tools/get_dc_list/Makefile
+    netlogon/tools/set_log_level/Makefile
+    netlogon/tools/get_dc_info/Makefile
+    netlogon/tools/get_dc_time/Makefile
+    netlogon/tests/Makefile
+    netlogon/tests/netbios/Makefile
+    netlogon/tests/plugin/Makefile
+    netlogon/tests/resolvehostclient/Makefile
+    netlogon/tests/get_domain_controller/Makefile
+    netlogon/tests/netlogonclient/Makefile
 ])
 
 AC_OUTPUT

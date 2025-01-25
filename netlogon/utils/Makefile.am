@@ -1,9 +1,16 @@
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/netlogon/include \
+	-I$(top_srcdir)/lwreg/include \
+	-I$(top_srcdir)/lwadvapi/include \
+	-I$(top_srcdir)/lwadvapi/include/public \
+	-I$(top_srcdir)/lwmsg/include \
+	-I$(top_srcdir)/lwbase/include \
+	-I$(top_srcdir)/include
 
 noinst_LTLIBRARIES=liblwnetutils.la
 
 liblwnetutils_la_SOURCES = \
-        globals.c           \
+    globals.c           \
 	lwnet-cfg.c         \
 	lwnet-dlinkedlist.c \
 	lwnet-dns.c         \
@@ -17,8 +24,8 @@ liblwnetutils_la_SOURCES = \
 	lwnet-sysfuncs.c
 
 noinst_HEADERS = \
-        externs.h       \
-        includes.h      \
+    externs.h       \
+    includes.h      \
 	lwnet-dns_p.h
 
 liblwnetutils_la_LIBADD =  \
