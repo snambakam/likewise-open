@@ -30,6 +30,6 @@ noinst_HEADERS = \
     externs.h       \
     includes.h
 
-libregutils_la_CPPFLAGS = $(AM_CPPFLAGS) @LWBASE_INCLUDES@
+libregutils_la_CPPFLAGS = $(AM_CPPFLAGS)
 libregutils_la_LDFLAGS = @LWBASE_LDFLAGS@
 libregutils_la_LIBADD = @LWBASE_LIBS@

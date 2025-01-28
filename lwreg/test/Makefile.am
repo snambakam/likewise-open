@@ -9,8 +9,8 @@ test_regio_LDADD =                           \
 
 test_regio_CPPFLAGS = \
     $(AM_CPPFLAGS)      \
-    @LWBASE_INCLUDES@   \
-    @LWMSG_INCLUDES@ \
+    -I@top_srcdir@/lwbase/include \
+    -I@top_srcdir@/lwmsg/include \
     -I@top_srcdir@ \
     -I@top_srcdir@/server/include
 

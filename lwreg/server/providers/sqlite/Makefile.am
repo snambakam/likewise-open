@@ -22,8 +22,7 @@ libregserver_provider_sqlite_la_CPPFLAGS = \
     -I@top_srcdir@/lwreg/server/include \
     -I@top_srcdir@/lwreg/include \
     -I@top_srcdir@/lwmsg/include \
-    -I@top_srcdir@/lwbase/include \
-    @LWBASE_INCLUDES@ \
+    -I@top_srcdir@/lwbase/include
     $(PROVIDER_CPPFLAGS)          
 
 libregserver_provider_sqlite_la_LIBADD = \
