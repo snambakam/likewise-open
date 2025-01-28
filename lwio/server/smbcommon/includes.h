@@ -31,8 +31,8 @@
 #include "config.h"
 #include "lwiosys.h"
 
-#include <openssl/md5.h>
 #include <openssl/hmac.h>
+#include <openssl/evp.h>
 
 #include <reg/lwntreg.h>
 

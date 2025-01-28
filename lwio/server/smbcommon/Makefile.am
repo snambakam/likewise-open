@@ -42,9 +42,11 @@ liblwiosmbcommon_la_SOURCES = \
     smbkrb5.c
 
 liblwiosmbcommon_la_CPPFLAGS =    \
-    -DAPI                         \
-    -I@top_srcdir@/include        \
-    -I@top_srcdir@/server/include
+    -DAPI \
+    -I@top_srcdir@/lwio/include \
+    -I@top_srcdir@/lwio/server/include \
+    -I@top_srcdir@/lwreg/include \
+    -I@top_srcdir@/lwbase/include
 
 liblwiosmbcommon_la_LIBADD = \
 	@CRYPTO_LIBS@ \

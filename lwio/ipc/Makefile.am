@@ -9,8 +9,9 @@ liblwioipc_la_SOURCES = \
     ntipc-unicode_string.c
 
 liblwioipc_la_CPPFLAGS = \
-    -I@top_srcdir@/include  \
-    @LWMSG_INCLUDES@
+    -I@top_srcdir@/lwio/include  \
+    -I@top_srcdir@/lwmsg/include  \
+    -I@top_srcdir@/lwbase/include
 
 liblwioipc_la_LIBADD = \
-    @LWMSG_NOTHR_LIBS@
+    @top_builddir@/lwmsg/src/liblwmsg_nothr.la

@@ -745,8 +745,9 @@ SMBPacketVerifySignature(
 {
     NTSTATUS ntStatus = 0;
     uint8_t digest[16];
+    uint32_t digestLen = sizeof(digest);
     uint8_t origSignature[8];
-    MD5_CTX md5Value;
+    EVP_MD_CTX* pMd5Value = NULL;
     uint32_t littleEndianSequence = SMB_HTOL32(ulExpectedSequence);
 
     assert (sizeof(origSignature) == sizeof(pPacket->pSMBHeader->extra.securitySignature));
@@ -763,17 +764,35 @@ SMBPacketVerifySignature(
            &littleEndianSequence,
            sizeof(littleEndianSequence));
 
-    MD5_Init(&md5Value);
-
-    if (pSessionKey)
-    {
-        MD5_Update(&md5Value, pSessionKey, ulSessionKeyLength);
+    pMd5Value = EVP_MD_CTX_new();
+    if (!pMd5Value) {
+        ntStatus = STATUS_INSUFFICIENT_RESOURCES;
+        BAIL_ON_NT_STATUS(ntStatus);
     }
 
-    MD5_Update(&md5Value,
-               (PBYTE)pPacket->pSMBHeader,
-               pPacket->pNetBIOSHeader->len);
-    MD5_Final(digest, &md5Value);
+    if (1 != EVP_DigestInit_ex(pMd5Value, EVP_md5(), NULL)) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
+
+    if (pSessionKey) {
+        if (1 != EVP_DigestUpdate(pMd5Value, pSessionKey, ulSessionKeyLength)) {
+            ntStatus = STATUS_ENCRYPTION_FAILED;
+            BAIL_ON_NT_STATUS(ntStatus);
+        }
+    }
+
+    if (1 != EVP_DigestUpdate(pMd5Value, (PBYTE)pPacket->pSMBHeader, ntohl(pPacket->pNetBIOSHeader->len))) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
+
+    assert(sizeof(digest) >= EVP_MD_size(EVP_md5()));
+    
+    if (1 != EVP_DigestFinal_ex(pMd5Value, &digest[0], &digestLen)) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
 
     if (memcmp(&origSignature[0], &digest[0], sizeof(origSignature)))
     {
@@ -788,6 +807,11 @@ SMBPacketVerifySignature(
     BAIL_ON_NT_STATUS(ntStatus);
 
 cleanup:
+
+    if (pMd5Value) {
+        EVP_MD_CTX_free(pMd5Value);
+        pMd5Value = NULL;
+    }
 
     return ntStatus;
 
@@ -947,8 +971,20 @@ SMBPacketSign(
 {
     NTSTATUS ntStatus = 0;
     uint8_t digest[16];
-    MD5_CTX md5Value;
+    uint32_t digestLen = sizeof(digest);
+    EVP_MD_CTX* pMd5Value = NULL;
     uint32_t littleEndianSequence = SMB_HTOL32(ulSequence);
+
+    pMd5Value = EVP_MD_CTX_new();
+    if (!pMd5Value) {
+        ntStatus = STATUS_INSUFFICIENT_RESOURCES;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
+
+    if (1 != EVP_DigestInit_ex(pMd5Value, EVP_md5(), NULL)) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
 
     memset(&pPacket->pSMBHeader->extra.securitySignature[0],
            0,
@@ -958,20 +994,34 @@ SMBPacketSign(
            &littleEndianSequence,
            sizeof(littleEndianSequence));
 
-    MD5_Init(&md5Value);
-
-    if (pSessionKey)
-    {
-        MD5_Update(&md5Value, pSessionKey, ulSessionKeyLength);
+    if (pSessionKey) {
+        if (1 != EVP_DigestUpdate(pMd5Value, pSessionKey, ulSessionKeyLength)) {
+            ntStatus = STATUS_ENCRYPTION_FAILED;
+            BAIL_ON_NT_STATUS(ntStatus);
+        }
     }
 
-    MD5_Update(&md5Value, (PBYTE)pPacket->pSMBHeader, ntohl(pPacket->pNetBIOSHeader->len));
-    MD5_Final(digest, &md5Value);
+    if (1 != EVP_DigestUpdate(pMd5Value, (PBYTE)pPacket->pSMBHeader, ntohl(pPacket->pNetBIOSHeader->len))) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
 
+    assert(sizeof(digest) >= EVP_MD_size(EVP_md5()));
+    
+    if (1 != EVP_DigestFinal_ex(pMd5Value, &digest[0], &digestLen)) {
+        ntStatus = STATUS_ENCRYPTION_FAILED;
+        BAIL_ON_NT_STATUS(ntStatus);
+    }
+    assert(digestLen == sizeof(pPacket->pSMBHeader->extra.securitySignature));
     memcpy(&pPacket->pSMBHeader->extra.securitySignature[0],
            &digest[0],
            sizeof(pPacket->pSMBHeader->extra.securitySignature));
 
+error:
+    if (pMd5Value) {
+        EVP_MD_CTX_free(pMd5Value);
+        pMd5Value = NULL;
+    }
     return ntStatus;
 }
 

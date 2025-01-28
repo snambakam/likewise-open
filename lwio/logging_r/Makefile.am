@@ -6,7 +6,8 @@ liblwiolog_r_la_SOURCES = \
 
 liblwiolog_r_la_CPPFLAGS = \
     -DLW_ENABLE_THREADS=1 \
-    -I@top_srcdir@/include    
+    -I@top_srcdir@/lwio/include \
+    -I@top_srcdir@/lwbase/include   
 
 liblwiolog_r_la_LIBADD = \
     @PTHREAD_LIBS@

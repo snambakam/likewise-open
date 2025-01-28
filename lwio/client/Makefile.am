@@ -18,15 +18,15 @@ liblwioclient_la_SOURCES = \
 liblwioclient_la_CPPFLAGS = \
     $(AM_CPPFLAGS) \
     -DLWIO_NO_THREADS \
-    -I@top_srcdir@/include \
-    @LWMSG_INCLUDES@
+    -I@top_srcdir@/lwio/include \
+    -I@top_srcdir@/lwmsg/include \
+    -I@top_srcdir@/lwbase/include
 
 liblwioclient_la_CFLAGS = \
     $(AM_CFLAGS) \
     -Wmissing-prototypes
 
 liblwioclient_la_LIBADD = \
-    @top_builddir@/common/liblwiocommon.la \
-    @top_builddir@/libshareinfo/liblwioshareinfo.la \
-    @LWMSG_LIBS@ \
-    -lkrb5
+    @top_builddir@/lwio/common/liblwiocommon.la \
+    @top_builddir@/lwio/libshareinfo/liblwioshareinfo.la \
+    @KRB5_LIBS@

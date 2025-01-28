@@ -474,10 +474,6 @@ AM_CONDITIONAL(USE_POLL, $USE_POLL)
 AM_CONDITIONAL(USE_EPOLL, $USE_EPOLL)
 AM_CONDITIONAL(USE_KQUEUE, $USE_KQUEUE)
 
-LWBASE_INCLUDES="-I$(top_srcdir)/lwbase/include"
-
-AC_SUBST(LWBASE_INCLUDES)
-
 #--------------------------------------------------------------------
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -731,6 +727,11 @@ AC_SUBST(OPENLDAP_LIBS)
 
 #--------------------------------------------------------------------
 
+CRYPTO_LIBS="-lcrypto"
+AC_SUBST(CRYPTO_LIBS)
+
+#--------------------------------------------------------------------
+
 AC_CHECK_LIB([dl],
     [dlopen],
     [LIBDL="-ldl"])
@@ -788,6 +789,7 @@ AC_CHECK_LIB([sqlite3],
     [$SQLITE_LDFLAGS $DL_LIBS $PTHREAD_LIBS])
 
 AC_CHECK_LIB([rt], [sigwaitinfo], [LIB_RT="-lrt"], [LIB_RT=""])
+AC_CHECK_LIB([pthread], [pthread_self], [PTHREAD_LIBS="-lpthread"])
 
 #--------------------------------------------------------------------
 
@@ -796,6 +798,153 @@ AC_SUBST(LIB_PTHREAD)
 AC_SUBST(ZLIB_LIBS)
 AC_SUBST(BZIP_LIBS)
 AC_SUBST(LIB_RT)
+AC_SUBST(UUID_LIBS)
+AC_SUBST(PTHREAD_LIBS)
+
+#--------------------------------------------------------------------
+
+# share repository
+share_repository=registry
+
+AC_ARG_WITH([share-repository],
+        [AC_HELP_STRING([--with-share-repository=<type>], [use share repository <type>])],
+        [
+                share_repository="$withval"
+        ])
+
+case "$share_repository" in
+
+    sqlite)
+
+        SHARE_REPOSITORY_TYPE_DEFINES=-DLW_USE_SHARE_REPOSITORY_SQLITE
+
+        ;;
+
+    registry)
+
+        SHARE_REPOSITORY_TYPE_DEFINES=-DLW_USE_SHARE_REPOSITORY_REGISTRY
+
+        ;;
+
+    *)
+
+        share_repository="registry"
+        SHARE_REPOSITORY_TYPE_DEFINES=-DLW_USE_SHARE_REPOSITORY_REGISTRY
+
+        ;;
+esac
+
+AM_CONDITIONAL(ENABLE_SHARE_REPOSITORY_SQLITE, test x"$share_repository" = x"sqlite")
+AM_CONDITIONAL(ENABLE_SHARE_REPOSITORY_REGISTRY, test x"$share_repository" = x"registry")
+
+AC_SUBST(SHARE_REPOSITORY_TYPE_DEFINES)
+
+AC_ARG_WITH([drivers], [AC_HELP_STRING([--with-drivers], [list of drivers to build (npfs pvfs dfs srv rdr)])],
+		       [], [with_drivers="npfs pvfs srv rdr"])
+
+_IFS="${IFS}"
+IFS=" ,"
+for driver in $with_drivers
+do
+	eval "enable_${driver}=yes"
+done
+IFS="${_IFS}"
+
+AM_CONDITIONAL(ENABLE_RDR, test x"$enable_rdr" = x"yes")
+if test x"$enable_rdr" = x"yes"
+then
+	AC_DEFINE([ENABLE_RDR], [], [Define if rdr driver should be built])
+fi
+
+AM_CONDITIONAL(ENABLE_SRV, test x"$enable_srv" = x"yes")
+if test x"$enable_srv" = x"yes"
+then
+	AC_DEFINE([ENABLE_SRV], [], [Define if srv driver should be built])
+fi
+
+AM_CONDITIONAL(ENABLE_PVFS, test x"$enable_pvfs" = x"yes")
+if test x"$enable_pvfs" = x"yes"
+then
+	AC_DEFINE([ENABLE_PVFS], [], [Define if pvfs driver should be built])
+fi
+
+AM_CONDITIONAL(ENABLE_DFS, test x"$enable_dfs" = x"yes")
+if test x"$enable_dfs" = x"yes"
+then
+	AC_DEFINE([ENABLE_DFS], [], [Define if dfs driver should be built])
+fi
+
+AM_CONDITIONAL(ENABLE_NPFS, test x"$enable_npfs" = x"yes")
+if test x"$enable_npfs" = x"yes"
+then
+	AC_DEFINE([ENABLE_NPFS], [], [Define if npfs driver should be built])
+fi
+
+# Boolean settings
+
+AC_ARG_ENABLE([static-drivers], [AC_HELP_STRING([--enable-static-drivers], [build drivers directly into lwiod])])
+AM_CONDITIONAL(ENABLE_STATIC_DRIVERS, test x"$enable_static_drivers" = x"yes")
+if test x"$enable_static_drivers" = x"yes"
+then
+	AC_DEFINE([ENABLE_STATIC_DRIVERS], [], [Define if drivers should be built directly into lwiod])
+fi
+
+AC_ARG_ENABLE([small-daemon], [AC_HELP_STRING([--enable-small-daemon], [build small lwiod])])
+AM_CONDITIONAL(ENABLE_SMALL_DAEMON, test x"$enable_small_daemon" = x"yes")
+if test x"$enable_small_daemon" = x"yes"
+then
+	AC_DEFINE([ENABLE_SMALL_DAEMON], [], [Define if lwiod should be small])
+fi
+
+ENABLE_IOTEST=true
+
+AC_ARG_ENABLE([iotest],
+        [AC_HELP_STRING([--disable-iotest], [disable iotest (default: enabled)])],
+        [
+                if test x"$enableval" = x"yes"
+                then
+                        ENABLE_IOTEST=true
+                else
+                        ENABLE_IOTEST=false
+                fi
+        ])
+
+AM_CONDITIONAL(ENABLE_IOTEST, [$ENABLE_IOTEST])
+
+saved_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=64"
+AC_CHECK_HEADER([fuse.h], [HAVE_FUSE_H=true], [HAVE_FUSE_H=false])
+CPPFLAGS="$saved_CPPFLAGS"
+
+AC_CHECK_LIB(fuse, fuse_new, [HAVE_FUSE_LIB=true], [HAVE_FUSE_LIB=false])
+
+if test x"$HAVE_FUSE_H" = x"true" -a x"$HAVE_FUSE_LIB" = x"true"
+then
+	HAVE_FUSE=true
+else
+	HAVE_FUSE=false
+fi
+
+AM_CONDITIONAL(ENABLE_FUSE, test x"$HAVE_FUSE" = x"true")
+
+lwioconfdir="$sysconfdir"
+AC_SUBST(lwioconfdir)
+AS_AC_EXPAND(CONFIGDIR, $lwioconfdir)
+AC_DEFINE_UNQUOTED(CONFIGDIR, "$CONFIGDIR", [Config directory])
+
+lwioregdir="$datadir/config"
+AC_SUBST(lwioregdir)
+
+if test x"$localstatedir" = x"/var"; then
+    lwiocachedir="$localstatedir/lib/likewise" 
+else
+    lwiocachedir="$localstatedir"
+fi
+AC_SUBST(lwiocachedir)
+AS_AC_EXPAND(CACHEDIR, $lwiocachedir)
+AC_DEFINE_UNQUOTED(CACHEDIR, "$CACHEDIR", [Cache directory])
+        
+AS_AC_EXPAND(providerdir, $libdir)
 
 #--------------------------------------------------------------------
 
@@ -877,6 +1026,63 @@ AC_CONFIG_FILES([
     netlogon/tests/resolvehostclient/Makefile
     netlogon/tests/get_domain_controller/Makefile
     netlogon/tests/netlogonclient/Makefile
+    lwio/Makefile
+    lwio/etc/Makefile
+    lwio/etc/dfs.reg
+    lwio/etc/lwiod.reg
+    lwio/etc/lwiod.reg.svcm
+    lwio/etc/npfs.reg
+    lwio/etc/pvfs.reg
+        lwio/etc/rdr.reg
+        lwio/etc/srv.reg        
+        lwio/scripts/Makefile
+        lwio/utils/Makefile
+        lwio/common/Makefile
+        lwio/ipc/Makefile
+        lwio/include/Makefile
+        lwio/libshareinfo/Makefile
+        lwio/fuse/Makefile
+        lwio/logging_r/Makefile
+        lwio/server/dfs/Makefile
+        lwio/server/Makefile
+        lwio/server/pvfs/Makefile
+        lwio/server/srvstat/Makefile
+        lwio/server/iomgr/Makefile
+        lwio/server/npfs/Makefile
+        lwio/server/smbcommon/Makefile
+        lwio/server/lwiod/Makefile
+        lwio/server/rdr/Makefile
+        lwio/server/srv/statistics/Makefile
+        lwio/server/srv/transport/threadpool/Makefile
+        lwio/server/srv/transport/Makefile
+        lwio/server/srv/driver/Makefile
+        lwio/server/srv/utils/Makefile
+        lwio/server/srv/oem/Makefile
+        lwio/server/srv/Makefile
+        lwio/server/srv/elements/Makefile
+        lwio/server/srv/shares/Makefile
+        lwio/server/srv/shares/api/Makefile
+        lwio/server/srv/shares/regshare/Makefile
+        lwio/server/srv/shares/lwshare/Makefile
+        lwio/server/srv/protocols/smb1/Makefile
+        lwio/server/srv/protocols/Makefile
+        lwio/server/srv/protocols/api/Makefile
+        lwio/server/srv/protocols/smb2/Makefile
+        lwio/drivers/iotest/Makefile
+        lwio/drivers/Makefile
+        lwio/client/Makefile
+        lwio/tools/Makefile
+        lwio/tools/lwio-tool/Makefile
+        lwio/tools/lwio-copy/Makefile
+        lwio/tools/lwio-set-log-level/Makefile
+        lwio/tools/lwio-refresh/Makefile
+        lwio/tools/lwio-get-log-info/Makefile
+        lwio/tools/lwio-cli/Makefile
+        lwio/tools/lwio-driver/Makefile
+        lwio/tests/test_load/Makefile
+        lwio/tests/test_pvfs/Makefile
+        lwio/tests/Makefile
+        lwio/tests/moonunit/Makefile
 ])
 
 AC_OUTPUT

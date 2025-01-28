@@ -13,4 +13,5 @@ SUBDIRS = \
 	lwmsg \
 	lwadvapi \
 	lwreg \
-	netlogon
+	netlogon \
+	lwio

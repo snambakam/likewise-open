@@ -30,11 +30,14 @@ liblwioutils_la_SOURCES = \
 
 liblwioutils_la_CPPFLAGS = \
     $(AM_CPPFLAGS) \
-    -I@top_srcdir@/include
+    -I@top_srcdir@/lwio/include \
+    -I@top_srcdir@/lwreg/include \
+    -I@top_srcdir@/lwbase/include
 
 liblwioutils_la_LIBADD = \
-    @LWBASE_LIBS@ \
-    @LWREG_LIBS@  \
+    @top_builddir@/lwbase/src/liblwbase.la \
+    @top_builddir@/lwreg/client/libregclient.la \
+    @top_builddir@/lwreg/common/libregcommon.la \
     @DL_LIBS@     \
     @RT_LIBS@
 
